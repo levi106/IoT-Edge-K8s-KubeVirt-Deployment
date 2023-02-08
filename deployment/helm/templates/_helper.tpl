@@ -33,6 +33,25 @@ Create the cloud-init config for vm.
 hostname: iotedgevm
 ssh_authorized_keys:
   - {{ .Values.publicSshKey }}
+{{- if or .Values.httpProxy .Values.httpsProxy }}
+write_files:
+- path: /etc/apt/apt.conf.d/99proxy
+  permissions: "0640"
+  owner: root
+  content: |
+{{- if .Values.httpProxy }}
+    Acquire::http::Proxy "{{ .Values.httpProxy }}";
+{{- end }}
+{{- if .Values.httpsProxy }}
+    Acquire::https::Proxy "{{ .Values.httpsProxy }}";
+- path: /tmp/http-proxy.conf
+  permissions: "0644"
+  owner: root
+  content: |
+    [Service]
+    Environment="HTTPS_PROXY={{ .Values.httpsProxy }}"
+{{- end }}
+{{- end }}
 apt:
   sources:
     microsoft-prod.list:
@@ -77,6 +96,20 @@ runcmd:
   - sudo systemctl restart docker
   - sudo mkdir -p /etc/aziot/certificates
   - sudo cp /mnt/app-secret/rootca /etc/aziot/certificates/{{ .Values.rootCAName }}
+  {{- end }}
+  {{- if .Values.httpsProxy }}
+  - sudo mkdir -p /etc/systemd/system/aziot-identityd.service.d/
+  - sudo mkdir -p /etc/systemd/system/aziot-edged.service.d/
+  - sudo mkdir -p /etc/systemd/system/docker.service.d/
+  - sudo cp /tmp/http-proxy.conf /etc/systemd/system/aziot-identityd.service.d/http-proxy.conf
+  - sudo cp /tmp/http-proxy.conf /etc/systemd/system/aziot-edged.service.d/http-proxy.conf
+  - sudo cp /tmp/http-proxy.conf /etc/systemd/system/docker.service.d/http-proxy.conf
+  - sudo chmod 644 /etc/systemd/system/aziot-identityd.service.d/http-proxy.conf
+  - sudo chmod 644 /etc/systemd/system/aziot-edged.service.d/http-proxy.conf
+  - sudo chmod 644 /etc/systemd/system/docker.service.d/http-proxy.conf
+  - sudo systemctl daemon-reload
+  - sudo systemctl restart docker
+  - sudo iotedge system restart
   {{- end }}
   {{- if .Values.deviceCACert }}
   - sudo cp /mnt/app-secret/devicecert /etc/aziot/certificates/{{ .Values.deviceCACertName }}

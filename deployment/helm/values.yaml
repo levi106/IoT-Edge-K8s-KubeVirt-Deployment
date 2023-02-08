@@ -33,3 +33,9 @@ deviceCAKey: ""
 
 # Device CA private key name
 deviceCAKeyName: "iot-edge-device.key.pem"
+
+# HTTP Proxy
+httpProxy: ""
+
+# HTTPS Proxy
+httpsProxy: ""
