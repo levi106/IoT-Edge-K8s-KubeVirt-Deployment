@@ -10,7 +10,7 @@ metadata:
 spec:
   source:
     http:
-      url: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
+      url: https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
   pvc:
     accessModes:
       - ReadWriteOnce

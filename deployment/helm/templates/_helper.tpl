@@ -36,7 +36,7 @@ ssh_authorized_keys:
 apt:
   sources:
     microsoft-prod.list:
-      source: "deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/18.04/multiarch/prod bionic main"
+      source: "deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/20.04/multiarch/prod focal main"
       key: |
         -----BEGIN PGP PUBLIC KEY BLOCK-----
         Version: GnuPG v1.4.7 (GNU/Linux)
